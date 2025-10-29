@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Gem, Copy, RefreshCw, Bookmark, LogOut, Settings, User, BookMarked, Edit, Check, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ const Generator = () => {
   
   const { toast, toasts, removeToast } = useCustomToast();
   const navigate = useNavigate();
+  const generatedPromptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -159,6 +160,16 @@ const Generator = () => {
         }
       } catch {}
       toast.success("Prompt Generated!", "Your AI-optimized prompt is ready");
+      
+      // Scroll to the generated prompt after a short delay to ensure it's rendered
+      setTimeout(() => {
+        if (generatedPromptRef.current) {
+          generatedPromptRef.current.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
     } catch (error: any) {
       toast.error("Generation Failed", error.message || "Failed to generate prompt");
     } finally {
@@ -357,7 +368,7 @@ const Generator = () => {
 
           {/* Generated Prompt */}
           {generatedPrompt && (
-            <Card className="p-6 glass-effect border-primary/20">
+            <Card ref={generatedPromptRef} className="p-6 glass-effect border-primary/20">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Your Generated Prompt</h2>
                 <div className="flex gap-2">
