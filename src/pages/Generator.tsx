@@ -14,6 +14,7 @@ import { EnhancedFontSelector } from "@/components/EnhancedFontSelector";
 import { EnhancedTechStackSelector } from "@/components/EnhancedTechStackSelector";
 import { AIToolSelector } from "@/components/AIToolSelector";
 import { PaymentGatewaySelector } from "@/components/PaymentGatewaySelector";
+import BubbleLoadingAnimation from "@/components/BubbleLoadingAnimation";
 
 const Generator = () => {
   const [userIdea, setUserIdea] = useState("");
@@ -23,10 +24,11 @@ const Generator = () => {
   const [authProvider, setAuthProvider] = useState("");
   const [databaseProvider, setDatabaseProvider] = useState("");
   const [theme, setTheme] = useState("dark");
-  const [aiTool, setAiTool] = useState("Cursor");
+  const [aiTool, setAiTool] = useState("Lovable");
   const [paymentGateways, setPaymentGateways] = useState<string[]>([]);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedPrompt, setEditedPrompt] = useState("");
@@ -117,7 +119,14 @@ const Generator = () => {
       return;
     }
 
-    setIsGenerating(true);
+    // Check if we're regenerating (prompt already exists)
+    const isRegen = !!generatedPrompt;
+    if (isRegen) {
+      setIsRegenerating(true);
+    } else {
+      setIsGenerating(true);
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('generate-prompt', {
         body: {
@@ -174,6 +183,7 @@ const Generator = () => {
       toast.error("Generation Failed", error.message || "Failed to generate prompt");
     } finally {
       setIsGenerating(false);
+      setIsRegenerating(false);
     }
   };
 
@@ -368,7 +378,8 @@ const Generator = () => {
 
           {/* Generated Prompt */}
           {generatedPrompt && (
-            <Card ref={generatedPromptRef} className="p-6 glass-effect border-primary/20">
+            <Card ref={generatedPromptRef} className="p-6 glass-effect border-primary/20 relative">
+              <BubbleLoadingAnimation isVisible={isRegenerating} />
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Your Generated Prompt</h2>
                 <div className="flex gap-2">

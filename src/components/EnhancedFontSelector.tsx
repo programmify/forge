@@ -1,5 +1,22 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Function to load Google Fonts dynamically
+const loadGoogleFont = (fontName: string) => {
+  const fontNameFormatted = fontName.replace(/\s+/g, '+');
+  const fontStyle = `https://fonts.googleapis.com/css2?family=${fontNameFormatted}:wght@300;400;500;600;700&display=swap`;
+  
+  // Check if the font stylesheet is already loaded
+  const existingLink = document.querySelector(`link[href="${fontStyle}"]`) as HTMLLinkElement;
+  if (existingLink) return;
+
+  // Create a new link element for the Google Font
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = fontStyle;
+  document.head.appendChild(link);
+};
 
 const POPULAR_FONTS = [
   { name: "Inter", style: "font-sans", preview: "Modern & Clean", category: "Sans-serif" },
@@ -24,8 +41,21 @@ interface EnhancedFontSelectorProps {
   onChange: (value: string) => void;
 }
 
-export const EnhancedFontSelector = ({ value, onChange }: EnhancedFontSelectorProps) => {
+const EnhancedFontSelector = ({ value, onChange }: EnhancedFontSelectorProps) => {
+  const [isFontLoaded, setIsFontLoaded] = useState(false);
   const selectedFont = POPULAR_FONTS.find(f => f.name === value);
+
+  useEffect(() => {
+    if (value) {
+      // Load the selected Google Font
+      loadGoogleFont(value);
+      setIsFontLoaded(true);
+      
+      // Reset the loaded state to allow re-triggering the effect if the same font is reselected
+      const timer = setTimeout(() => setIsFontLoaded(false), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [value]);
 
   return (
     <Card className="p-6 glass-effect border-primary/20">
@@ -36,23 +66,44 @@ export const EnhancedFontSelector = ({ value, onChange }: EnhancedFontSelectorPr
         </SelectTrigger>
         <SelectContent className="max-h-[400px]">
           {POPULAR_FONTS.map((font) => (
-            <SelectItem key={font.name} value={font.name} className="py-3">
+            <SelectItem 
+              key={font.name} 
+              value={font.name} 
+              className="py-3"
+              style={{ fontFamily: font.name }}
+            >
               <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-medium">{font.name}</span>
+                  <span className="font-medium" style={{ fontFamily: font.name }}>
+                    {font.name}
+                  </span>
                   <span className="text-xs text-muted-foreground">{font.category}</span>
                 </div>
-                <span className="text-xs text-muted-foreground italic">{font.preview}</span>
+                <span 
+                  className="text-xs text-muted-foreground italic" 
+                  style={{ fontFamily: font.name }}
+                >
+                  {font.preview}
+                </span>
               </div>
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
       {selectedFont && (
-        <div className="mt-4 p-4 rounded-lg bg-background/50 border border-primary/10">
+        <div className="mt-4 p-4 rounded-lg bg-background/50 border border-primary/10 transition-all duration-300">
           <p className="text-xs text-muted-foreground mb-2">Preview:</p>
-          <p className={`text-lg ${selectedFont.style}`} style={{ fontFamily: selectedFont.name }}>
+          <p 
+            className={`text-lg ${selectedFont.style} transition-all duration-300`}
+            style={{ 
+              fontFamily: `"${selectedFont.name}", sans-serif`,
+              opacity: isFontLoaded ? 1 : 0.7
+            }}
+          >
             The quick brown fox jumps over the lazy dog
+          </p>
+          <p className="text-sm mt-2" style={{ fontFamily: `"${selectedFont.name}", sans-serif` }}>
+            Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz
           </p>
           <p className="text-xs text-muted-foreground mt-2">{selectedFont.preview}</p>
         </div>
@@ -60,3 +111,5 @@ export const EnhancedFontSelector = ({ value, onChange }: EnhancedFontSelectorPr
     </Card>
   );
 };
+
+export { EnhancedFontSelector };

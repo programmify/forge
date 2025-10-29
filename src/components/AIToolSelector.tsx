@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AI_TOOLS = [
+  "Lovable",
   "Replit",
   "Cursor",
   "Claude CLI",
