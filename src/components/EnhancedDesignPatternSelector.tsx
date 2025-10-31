@@ -405,7 +405,7 @@ export const EnhancedDesignPatternSelector = ({ value, onChange }: EnhancedDesig
                   className="h-48 rounded-lg overflow-hidden relative"
                   onClick={() => setPreviewPattern(pattern.name)}
                 >
-                  <div className="w-full h-full scale-75 origin-top-left">
+                  <div className="w-full h-full scale-100 origin-top-left">
                     {pattern.example()}
                   </div>
                   <div className="absolute inset-0 bg-card bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
